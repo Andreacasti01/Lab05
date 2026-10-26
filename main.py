@@ -37,6 +37,37 @@ def main(page: ft.Page):
 
     # Tutti i TextField per le info necessarie per aggiungere un nuovo strumento (tipo, marca, anno, contatore posti)
     # TODO
+    txt_strumenti = ft.Text("Aggiungi nuovo strumento", size=20, weight=ft.FontWeight.BOLD)
+
+    input_tipo = ft.TextField(
+        label="Tipo",
+        height=40,
+        width=200,
+        dense=True,
+        text_size=15
+    )
+    input_marca = ft.TextField(
+        label="Marca",
+        height=40,
+        width=200,
+        dense=True,
+        text_size=15
+    )
+    input_anno = ft.TextField(
+        label="Anno acquisto",
+        height=40,
+        width=200,
+        dense=True,
+        text_size=15
+        )
+    casella_valore = ft.TextField(
+        value = "0",
+        text_align = ft.TextAlign.CENTER,
+        height=40,
+        width=50,
+        dense=True,
+        text_size=15
+    )
 
     # --- FUNZIONI APP ---
     def aggiorna_lista_strumenti():
@@ -44,7 +75,6 @@ def main(page: ft.Page):
         for strumento in deposito.strumenti_ordinati_per_marca():
             stato = "✅" if strumento.disponibile else "⛔"
             lista_strumenti.controls.append(ft.Text(f"{stato} {strumento}"))
-
     # --- HANDLERS APP ---
     def cambia_tema(e):
         page.theme_mode = ft.ThemeMode.DARK if toggle_cambia_tema.value else ft.ThemeMode.LIGHT
@@ -56,6 +86,44 @@ def main(page: ft.Page):
 
     # Handlers per la gestione dei pulsanti utili all'inserimento di un nuovo strumento
     # TODO
+    def counter_meno(e):
+        valore = int(casella_valore.value)
+        if valore>0:
+            casella_valore.value = str(valore-1)
+            page.update()
+
+    def counter_piu(e):
+        valore = int(casella_valore.value)
+        casella_valore.value = str(valore+1)
+        page.update()
+
+    def agg_strumento(e):
+        tipo = input_tipo.value
+        marca = input_marca.value
+        anno = input_anno.value
+        n_tot = int(casella_valore.value)
+        n=0
+        if anno.isdigit():
+            if n_tot > n:
+                if tipo and marca and anno:
+                    deposito.aggiungi_strumento(
+                        tipo=tipo,
+                        marca=marca,
+                        anno_acquisto=anno,
+                        valore = None
+                        )
+                    n_tot = n_tot - 1
+                    aggiorna_lista_strumenti()
+                    page.update()
+            if n_tot == n:
+                input_tipo.value = ""
+                input_marca.value = ""
+                input_anno.value = ""
+                casella_valore.value = "0"
+                page.update()
+        else:
+            alert.show_alert("Errore: inserire valori numerici validi per anno e posti")
+
 
     # --- EVENTI ---
     toggle_cambia_tema = ft.Switch(label="Tema scuro", value=True, on_change=cambia_tema)
@@ -63,6 +131,7 @@ def main(page: ft.Page):
 
     # Pulsanti per la gestione dell'inserimento di un nuovo strumento
     # TODO
+    pulsante_aggiungi_strumento = ft.Button("Aggiungi strumento", on_click=agg_strumento)
 
     # --- LAYOUT ---
     page.add(
@@ -81,6 +150,18 @@ def main(page: ft.Page):
 
         # Sezione 3
         # TODO
+        txt_strumenti,
+        ft.Row(controls=[
+            input_tipo,
+            input_marca,
+            input_anno,
+            ft.IconButton(icon=ft.Icons.REMOVE, on_click=counter_meno, icon_color=ft.Colors.RED),
+            casella_valore,
+            ft.IconButton(icon=ft.Icons.ADD, on_click=counter_piu, icon_color=ft.Colors.GREEN),
+            ],
+            alignment=ft.MainAxisAlignment.CENTER
+        ),
+        pulsante_aggiungi_strumento,
 
         # Sezione 4
         ft.Divider(),
